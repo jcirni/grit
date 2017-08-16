@@ -1,4 +1,3 @@
-#import numpy as np
 import pandas as pd
 import argparse
 import os.path
@@ -18,31 +17,22 @@ def err_data(value, row, col):
 
 #test chrom data
 def valid_chrom(chrom):
-	if chrom[0:3] == 'chr' and int(chrom[3:]) < 23:
-		return True
-	else:
+	try:
+		return chrom[0:3] == 'chr' and int(chrom[3:]) < 23
+	except ValueError:
 		return False
 
 #test start position
 def valid_start_position(value):
-	if 0 < value and value < (2 ** 32 + 1):
-		return True
-	else:
-		return False
+	return 0 < value and value < (2 ** 32 + 1)
 
 #test end position		
 def valid_end_position(end, start):
-	 if 0 < end  and end < (2 ** 32 + 1) and start < end:
-	 	return True
-	 else:
-	 	return False
+	return 0 < end  and end < (2 ** 32 + 1) and start < end
 
 #test feature name
 def valid_feature_name(feature):
-	if re.match("^[\w_()-]*$", feature):
-		return True
-	else:
-		return False
+	return re.match("^[\w_()-]*$", feature)
 
 #validate data set
 def valid_data(data, length):
@@ -198,7 +188,3 @@ if args.file:
 	get_user_input()
 else:
 	print parser.description
-
-
-
-
