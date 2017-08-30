@@ -13,7 +13,8 @@ def valid_file(arg):
 
 #standard outputs for data validation
 def err_data(value, row, col):
-	raise ValueError("Your value, " + value + ", at row %d and col %d does not contain appropriate data" % (row, col) )
+	log = open('error.log', 'w')
+	log.write("Your value, " + value + ", at row %d and col %d does not contain appropriate data\n" % (row, col))
 
 #test chrom data
 def valid_chrom(chrom):
@@ -36,50 +37,41 @@ def valid_feature_name(feature):
 
 #validate data set
 def valid_data(data, length):
-	#validate chrom field
+	'''iterate through columns of dataset, log errors'''
+	chromErrs, startErrs, endErrs, featErrs, strandErrs = 0,0,0,0,0 
 	i = 0
+	print "Data Validation Results:"
 	while i < length:
-		if valid_chrom(data.iloc[i][0]):
+		#validate chrom field
+        	if valid_chrom(data.iloc[i][0]):
 			#cut chr prefix and update value
 			data.set_value(i,0, (data.iloc[i][0])[3:], takeable=True)
-			i += 1
 		else:
 			err_data(data.iloc[i][0],i,0)
-	print "chrom field reported no errors!"
-	#validate start position
-	i = 0
-	while i < length:
-		if valid_start_position(data.iloc[i][1]):
-			i += 1
-		else:
+			chromErrs += 1
+        	#validate start position
+		if not valid_start_position(data.iloc[i][1]):
 			err_data(data.iloc[i][1],i,1)
-	print "start position field reported no errors!"
-	#validate end position
-	i = 0
-	while i < length:
-		if valid_end_position(data.iloc[i][2], data.iloc[i][1]):
-			i += 1
-		else:
+			startErrs += 1
+        	#validate end position
+		if not valid_end_position(data.iloc[i][2], data.iloc[i][1]):
 			err_data(data.iloc[i][2],i,2)
-	print "end position field reported no errors!"
-	#validate feature name
-	i = 0
-	while i < length:
-		if valid_feature_name(data.iloc[i][3]):
-			i += 1
-		else:
+			endErrs += 1
+        	#validate feature name
+		if not valid_feature_name(data.iloc[i][3]):
 			err_data(data.iloc[i][3],i,3)
-	print "feature name field reported no errors!"
-	#validate strand 
-	i = 0
-	while i < length:
-		if data.iloc[i][4] == '-' or data.iloc[i][4] == '+':
-			i += 1
-		else:
+			featErrs += 1
+        	#validate strand 
+		if not (data.iloc[i][4] == '-' or data.iloc[i][4] == '+'):
 			err_data(data.iloc[i][4],i,4)
-	print "strand field reported no errors!"
-
-	return True
+			strandErrs += 1
+        	i += 1
+	print "chrom field reported %d errors!" % (chromErrs)
+	print "start position field reported %d errors!" % (startErrs)
+	print "end position field reported %d errors!" % (endErrs)
+	print "feature name field reported %d errors!"  % (featErrs)
+	print "strand field reported %d errors!" % (strandErrs)
+	return chromErrs + startErrs + endErrs + featErrs + strandErrs == 0 
 
 def get_user_chrom():
 	opt = raw_input("Enter chromosome value (format chr##): ")
@@ -183,8 +175,11 @@ if args.file:
 		print "Data validation complete!"
 		#now that data is good, strip chr prefix from chrom column
 		df[['chromosome']] = df[['chromosome']].apply(pd.to_numeric)
-	print df
-	#what does user want to do now?
-	get_user_input()
+		print df
+		#what does user want to do now?
+		get_user_input()
+	else:
+		print
+		print 'Please make corrections to your data sample'
 else:
 	print parser.description
