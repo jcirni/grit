@@ -2,6 +2,7 @@ import pandas as pd
 import argparse
 import os.path
 import re
+import datetime from datetime
 pd.set_option('display.width', 120) 
 
 #catch bad file path
@@ -13,8 +14,8 @@ def valid_file(arg):
 
 #standard outputs for data validation
 def err_data(value, row, col):
-	log = open('error.log', 'w')
-	log.write("Your value, " + value + ", at row %d and col %d does not contain appropriate data\n" % (row, col))
+	log = open('error.log', 'a')
+	log.write(str(datetime.now()) + ": Your value, " + value + ", at row %d and col %d does not contain appropriate data\n" % (row, col))
 
 #test chrom data
 def valid_chrom(chrom):
